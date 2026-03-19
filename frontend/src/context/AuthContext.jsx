@@ -107,14 +107,42 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Helper function to get authorization header
+  const getAuthHeader = () => {
+    if (!token) return {};
+    return {
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
+  // Helper function to check if user has specific role (for future enhancement)
+  const hasRole = (role) => {
+    if (!user || !user.role) return false;
+    return user.role === role;
+  };
+
+  // Helper function to update user profile
+  const updateUserProfile = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
+
   const value = {
+    // State
     user,
     token,
     loading,
     isAuthenticated,
+    
+    // Methods
     login,
     logout,
     register,
+    
+    // Helper functions
+    getAuthHeader,
+    hasRole,
+    updateUserProfile,
   };
 
   return (
