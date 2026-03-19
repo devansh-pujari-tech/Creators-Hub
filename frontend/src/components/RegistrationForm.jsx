@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import '../styles/RegistrationForm.css';
 
 function RegistrationForm() {
@@ -13,6 +15,8 @@ function RegistrationForm() {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+  const { register } = useAuth();
 
   // Validation rules
   const validateForm = () => {
@@ -80,25 +84,17 @@ function RegistrationForm() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/users/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          password: formData.password,
-          confirmPassword: formData.confirmPassword,
-        }),
-      });
+      const result = await register(
+        formData.name.trim(),
+        formData.email.trim(),
+        formData.password,
+        formData.confirmPassword
+      );
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (result.success) {
         // Success
         setSuccessMessage(
-          `Welcome ${data.user.name}! Registration successful. You can now log in.`
+          `Registration successful! Redirecting to login...`
         );
         // Reset form
         setFormData({
@@ -108,9 +104,14 @@ function RegistrationForm() {
           confirmPassword: '',
         });
         setErrors({});
+        
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
         // Error response from backend
-        setErrorMessage(data.message || 'Registration failed. Please try again.');
+        setErrorMessage(result.message || 'Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Registration error:', error);
@@ -230,7 +231,7 @@ function RegistrationForm() {
 
         <p className="login-link">
           Already have an account?{' '}
-          <a href="#login">Sign in here</a>
+          <Link to="/login">Sign in here</Link>
         </p>
       </div>
     </div>
