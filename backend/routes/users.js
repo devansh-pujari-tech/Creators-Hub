@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const User = require("../models/User");
+const { verifyToken } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -161,6 +162,41 @@ router.post("/login", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error during login",
+    });
+  }
+});
+
+// Get user profile (Protected route)
+router.get("/profile", verifyToken, async (req, res) => {
+  try {
+    // User data is available in req.user from middleware
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const userResponse = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "User profile retrieved successfully",
+      user: userResponse,
+    });
+  } catch (error) {
+    console.error("Profile fetch error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching profile",
     });
   }
 });

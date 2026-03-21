@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
+import api from "../services/api";
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -22,27 +23,30 @@ export const AuthProvider = ({ children }) => {
     }
 
     setLoading(false);
+
+    // Listen for auth token expiration from API interceptor
+    const handleAuthTokenExpired = () => {
+      setToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
+    };
+
+    window.addEventListener("authTokenExpired", handleAuthTokenExpired);
+
+    return () => {
+      window.removeEventListener("authTokenExpired", handleAuthTokenExpired);
+    };
   }, []);
 
   // Login function
   const login = async (email, password) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await api.post("/users/login", {
+        email,
+        password,
+      });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
-      }
+      const data = response.data;
 
       // Store token and user in localStorage
       localStorage.setItem("token", data.token);
@@ -58,7 +62,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Login error:", error);
       return {
         success: false,
-        message: error.message || "Login failed",
+        message: error.response?.data?.message || error.message || "Login failed",
       };
     }
   };
@@ -75,46 +79,61 @@ export const AuthProvider = ({ children }) => {
   // Register function
   const register = async (name, email, password, confirmPassword) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            confirmPassword,
-          }),
-        }
-      );
+      const response = await api.post("/users/register", {
+        name,
+        email,
+        password,
+        confirmPassword,
+      });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
-      }
+      const data = response.data;
 
       return { success: true, message: data.message };
     } catch (error) {
       console.error("Registration error:", error);
       return {
         success: false,
-        message: error.message || "Registration failed",
+        message: error.response?.data?.message || error.message || "Registration failed",
       };
     }
   };
 
+  // Helper function to get authorization header
+  const getAuthHeader = () => {
+    if (!token) return {};
+    return {
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
+  // Helper function to check if user has specific role (for future enhancement)
+  const hasRole = (role) => {
+    if (!user || !user.role) return false;
+    return user.role === role;
+  };
+
+  // Helper function to update user profile
+  const updateUserProfile = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
+
   const value = {
+    // State
     user,
     token,
     loading,
     isAuthenticated,
+    
+    // Methods
     login,
     logout,
     register,
+    
+    // Helper functions
+    getAuthHeader,
+    hasRole,
+    updateUserProfile,
   };
 
   return (
