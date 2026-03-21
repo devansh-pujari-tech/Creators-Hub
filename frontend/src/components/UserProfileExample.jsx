@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import api from "../services/api";
 import "../styles/UserProfileExample.css";
 
 /**
  * UserProfileExample Component - Shows how to make authenticated API calls
  * 
  * This component demonstrates:
- * 1. Using getAuthHeader() to get Authorization header
- * 2. Using token from context for API authentication
- * 3. Handling loading and error states
- * 4. Making authenticated API calls with useEffect
+ * 1. Using the centralized api.js utility for authenticated requests
+ * 2. Authorization header is automatically added by interceptor
+ * 3. 401 errors are automatically handled by interceptor
+ * 4. Handling loading and error states
+ * 5. Making authenticated API calls with useEffect
  * 
  * This is an EXAMPLE component. Copy this pattern for your own components.
  */
 function UserProfileExample() {
-  const { user, getAuthHeader, token } = useAuth();
+  const { user, token } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -28,37 +30,21 @@ function UserProfileExample() {
       setError(null);
 
       try {
-        // ✓ Using getAuthHeader() helper to get Authorization header
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/users/profile`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              ...getAuthHeader(), // Includes Authorization: Bearer {token}
-            },
-          }
-        );
+        // ✓ Using centralized api utility
+        // Authorization header is automatically added by interceptor!
+        const response = await api.get("/users/profile");
 
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error("Session expired. Please login again.");
-          }
-          throw new Error("Failed to fetch profile");
-        }
-
-        const data = await response.json();
-        setProfileData(data);
+        setProfileData(response.data.user);
       } catch (err) {
         console.error("Error fetching profile:", err);
-        setError(err.message);
+        setError(err.response?.data?.message || err.message || "Failed to fetch profile");
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, [token, getAuthHeader]); // Re-fetch if token changes
+  }, [token]); // Re-fetch if token changes
 
   return (
     <div className="user-profile-example">
@@ -109,17 +95,19 @@ function UserProfileExample() {
         <h3>How This Component Works</h3>
         <ul>
           <li>
-            Uses <code>useAuth()</code> to get user, token, and getAuthHeader
+            Uses <code>useAuth()</code> to get user and token
           </li>
           <li>
-            Automatically refetches when token changes using useEffect dependency
+            Uses centralized <code>api.js</code> utility for authenticated requests
           </li>
           <li>
-            Uses <code>getAuthHeader()</code> to add Authorization header to API
-            call
+            Authorization header is automatically added by the request interceptor
+          </li>
+          <li>
+            401 errors are automatically handled by response interceptor (auto-logout)
           </li>
           <li>Handles loading, error, and success states</li>
-          <li>No props needed - everything from context!</li>
+          <li>No manual token handling needed - the interceptor handles it!</li>
         </ul>
       </div>
     </div>
