@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext'
 import RegistrationForm from './components/RegistrationForm'
 import LoginForm from './components/LoginForm'
 import Dashboard from './components/Dashboard'
+import CreatePost from './components/CreatePost'
 import ProtectedRoute from './components/ProtectedRoute'
 import PublicRoute from './components/PublicRoute'
 
@@ -20,6 +21,7 @@ function App() {
             
             {/* Protected Routes - Only accessible to authenticated users */}
             <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
+            <Route path="/create-post" element={<ProtectedRoute element={<CreatePost />} />} />
             
             {/* Default route - Redirects to login */}
             <Route path="/" element={<Navigate to="/login" replace />} />
