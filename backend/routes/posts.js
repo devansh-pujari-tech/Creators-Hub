@@ -197,4 +197,181 @@ router.get("/my-posts/:userId", verifyToken, async (req, res) => {
   }
 });
 
+// Get a single post by ID (authenticated)
+router.get("/:postId", verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!postId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid post ID format",
+      });
+    }
+
+    const post = await Post.findById(postId).populate("author", "name email");
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Post retrieved successfully",
+      post,
+    });
+  } catch (error) {
+    console.error("Get post error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching post",
+    });
+  }
+});
+
+// Update a post (only post owner can update) - authenticated
+router.put("/:postId", verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { title, content } = req.body;
+
+    // Validate MongoDB ObjectId
+    if (!postId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid post ID format",
+      });
+    }
+
+    // Validation
+    if (!title && !content) {
+      return res.status(400).json({
+        success: false,
+        message: "At least title or content must be provided",
+      });
+    }
+
+    if (title && title.trim().length < 3) {
+      return res.status(400).json({
+        success: false,
+        message: "Title must be at least 3 characters long",
+      });
+    }
+
+    if (content && content.trim().length < 10) {
+      return res.status(400).json({
+        success: false,
+        message: "Content must be at least 10 characters long",
+      });
+    }
+
+    // Fetch the post
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    // Check ownership
+    if (post.author.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized: You can only edit your own posts",
+      });
+    }
+
+    // Update post fields
+    if (title) {
+      post.title = title.trim();
+    }
+    if (content) {
+      post.content = content.trim();
+    }
+
+    // Update the updatedAt timestamp
+    post.updatedAt = Date.now();
+
+    // Save updated post
+    await post.save();
+
+    // Populate author info
+    await post.populate("author", "name email");
+
+    res.status(200).json({
+      success: true,
+      message: "Post updated successfully",
+      post,
+    });
+  } catch (error) {
+    console.error("Update post error:", error);
+
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({
+        success: false,
+        message: messages[0],
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Server error while updating post",
+    });
+  }
+});
+
+// Delete a post (only post owner can delete) - authenticated
+router.delete("/:postId", verifyToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!postId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid post ID format",
+      });
+    }
+
+    // Fetch the post
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    // Check ownership
+    if (post.author.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized: You can only delete your own posts",
+      });
+    }
+
+    // Delete the post
+    await Post.findByIdAndDelete(postId);
+
+    res.status(200).json({
+      success: true,
+      message: "Post deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete post error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while deleting post",
+    });
+  }
+});
+
 module.exports = router;
