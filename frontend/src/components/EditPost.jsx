@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api, { postAPI } from '../services/api';
+import toastService from '../services/toastService';
 import '../styles/EditPost.css';
 
 function EditPost() {
@@ -41,8 +42,10 @@ function EditPost() {
 
           // Check if current user is the post owner
           if (post.author._id !== user?._id) {
-            setError('Unauthorized: You can only edit your own posts');
+            const errorMsg = 'Unauthorized: You can only edit your own posts';
+            setError(errorMsg);
             setPostOwner(false);
+            toastService.error(errorMsg);
             return;
           }
 
@@ -54,15 +57,18 @@ function EditPost() {
         }
       } catch (err) {
         console.error('Error fetching post:', err);
+        let errorMsg = 'Failed to load post. Please try again.';
+        
         if (err.response?.status === 404) {
-          setError('Post not found');
+          errorMsg = 'Post not found';
         } else if (err.response?.status === 403) {
-          setError('You do not have permission to edit this post');
+          errorMsg = 'You do not have permission to edit this post';
         } else {
-          setError(
-            err.response?.data?.message || 'Failed to load post. Please try again.'
-          );
+          errorMsg = err.response?.data?.message || errorMsg;
         }
+        
+        setError(errorMsg);
+        toastService.error(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -94,25 +100,33 @@ function EditPost() {
     try {
       // Validation
       if (!formData.title.trim()) {
-        setError('Title cannot be empty');
+        const msg = 'Title cannot be empty';
+        setError(msg);
+        toastService.warning(msg);
         setSaving(false);
         return;
       }
 
       if (!formData.content.trim()) {
-        setError('Content cannot be empty');
+        const msg = 'Content cannot be empty';
+        setError(msg);
+        toastService.warning(msg);
         setSaving(false);
         return;
       }
 
       if (formData.title.trim().length < 3) {
-        setError('Title must be at least 3 characters long');
+        const msg = 'Title must be at least 3 characters long';
+        setError(msg);
+        toastService.warning(msg);
         setSaving(false);
         return;
       }
 
       if (formData.content.trim().length < 10) {
-        setError('Content must be at least 10 characters long');
+        const msg = 'Content must be at least 10 characters long';
+        setError(msg);
+        toastService.warning(msg);
         setSaving(false);
         return;
       }
@@ -124,23 +138,27 @@ function EditPost() {
       );
 
       if (response.data.success) {
-        setSuccessMessage('Post updated successfully! Redirecting...');
+        const successMsg = 'Post updated successfully!';
+        setSuccessMessage(successMsg);
+        toastService.success(successMsg);
         setTimeout(() => {
           navigate('/dashboard');
         }, 1500);
       }
     } catch (err) {
       console.error('Error updating post:', err);
+      let errorMsg = 'Failed to update post. Please try again.';
+      
       if (err.response?.status === 403) {
-        setError('Unauthorized: You can only edit your own posts');
+        errorMsg = 'Unauthorized: You can only edit your own posts';
       } else if (err.response?.status === 404) {
-        setError('Post not found');
+        errorMsg = 'Post not found';
       } else {
-        setError(
-          err.response?.data?.message ||
-          'Failed to update post. Please try again.'
-        );
+        errorMsg = err.response?.data?.message || errorMsg;
       }
+      
+      setError(errorMsg);
+      toastService.error(errorMsg);
     } finally {
       setSaving(false);
     }

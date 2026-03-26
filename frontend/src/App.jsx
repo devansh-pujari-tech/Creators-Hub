@@ -1,5 +1,7 @@
 //creaters hub
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import './App.css'
 import { AuthProvider } from './context/AuthContext'
 import RegistrationForm from './components/RegistrationForm'
@@ -15,6 +17,19 @@ function App() {
     <Router>
       <AuthProvider>
         <div className="App">
+          {/* Toast Container for notifications */}
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+
           <Routes>
             {/* Public Routes - Only accessible to unauthenticated users */}
             <Route path="/register" element={<PublicRoute element={<RegistrationForm />} />} />

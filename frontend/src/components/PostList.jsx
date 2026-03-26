@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api, { postAPI } from '../services/api';
+import toastService from '../services/toastService';
 import '../styles/PostList.css';
 
 function PostList() {
@@ -44,10 +45,11 @@ function PostList() {
       }
     } catch (err) {
       console.error('Error fetching posts:', err);
-      setError(
+      const errorMsg =
         err.response?.data?.message ||
-        'Failed to load posts. Please try again.'
-      );
+        'Failed to load posts. Please try again.';
+      setError(errorMsg);
+      toastService.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -90,12 +92,15 @@ function PostList() {
           ...prev,
           totalPosts: prev.totalPosts - 1,
         }));
+        
+        toastService.success('Post deleted successfully!');
       }
     } catch (err) {
       console.error('Error deleting post:', err);
-      setError(
-        err.response?.data?.message || 'Failed to delete post. Please try again.'
-      );
+      const errorMsg =
+        err.response?.data?.message || 'Failed to delete post. Please try again.';
+      setError(errorMsg);
+      toastService.error(errorMsg);
       setShowDeleteConfirm(false);
       setDeletingPostId(null);
     }

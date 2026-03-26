@@ -1,12 +1,15 @@
 const express = require("express");
 const { verifyToken } = require("../middleware/auth");
+const { asyncHandler } = require("../utils/asyncHandler");
 const Post = require("../models/Post");
 
 const router = express.Router();
 
 // Create a new post (authenticated)
-router.post("/", verifyToken, async (req, res) => {
-  try {
+router.post(
+  "/",
+  verifyToken,
+  asyncHandler(async (req, res) => {
     const { title, content } = req.body;
 
     // Validation
@@ -35,7 +38,7 @@ router.post("/", verifyToken, async (req, res) => {
     const post = new Post({
       title: title.trim(),
       content: content.trim(),
-      author: req.user.id, // User ID from verified token
+      author: req.user.id,
     });
 
     // Save post to database
@@ -49,27 +52,14 @@ router.post("/", verifyToken, async (req, res) => {
       message: "Post created successfully",
       post,
     });
-  } catch (error) {
-    console.error("Create post error:", error);
-
-    if (error.name === "ValidationError") {
-      const messages = Object.values(error.errors).map((err) => err.message);
-      return res.status(400).json({
-        success: false,
-        message: messages[0],
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Server error while creating post",
-    });
-  }
-});
+  }),
+);
 
 // Get all posts with pagination (authenticated)
-router.get("/", verifyToken, async (req, res) => {
-  try {
+router.get(
+  "/",
+  verifyToken,
+  asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
@@ -119,18 +109,14 @@ router.get("/", verifyToken, async (req, res) => {
         hasPreviousPage,
       },
     });
-  } catch (error) {
-    console.error("Get posts error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching posts",
-    });
-  }
-});
+  }),
+);
 
 // Get user's own posts with pagination (authenticated)
-router.get("/my-posts/:userId", verifyToken, async (req, res) => {
-  try {
+router.get(
+  "/my-posts/:userId",
+  verifyToken,
+  asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
@@ -188,18 +174,14 @@ router.get("/my-posts/:userId", verifyToken, async (req, res) => {
         hasPreviousPage,
       },
     });
-  } catch (error) {
-    console.error("Get user posts error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching user posts",
-    });
-  }
-});
+  }),
+);
 
-// Get a single post by ID (authenticated)
-router.get("/:postId", verifyToken, async (req, res) => {
-  try {
+// GET a single post by ID (authenticated)
+router.get(
+  "/:postId",
+  verifyToken,
+  asyncHandler(async (req, res) => {
     const { postId } = req.params;
 
     // Validate MongoDB ObjectId
@@ -224,18 +206,14 @@ router.get("/:postId", verifyToken, async (req, res) => {
       message: "Post retrieved successfully",
       post,
     });
-  } catch (error) {
-    console.error("Get post error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching post",
-    });
-  }
-});
+  }),
+);
 
 // Update a post (only post owner can update) - authenticated
-router.put("/:postId", verifyToken, async (req, res) => {
-  try {
+router.put(
+  "/:postId",
+  verifyToken,
+  asyncHandler(async (req, res) => {
     const { postId } = req.params;
     const { title, content } = req.body;
 
@@ -309,27 +287,14 @@ router.put("/:postId", verifyToken, async (req, res) => {
       message: "Post updated successfully",
       post,
     });
-  } catch (error) {
-    console.error("Update post error:", error);
-
-    if (error.name === "ValidationError") {
-      const messages = Object.values(error.errors).map((err) => err.message);
-      return res.status(400).json({
-        success: false,
-        message: messages[0],
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Server error while updating post",
-    });
-  }
-});
+  }),
+);
 
 // Delete a post (only post owner can delete) - authenticated
-router.delete("/:postId", verifyToken, async (req, res) => {
-  try {
+router.delete(
+  "/:postId",
+  verifyToken,
+  asyncHandler(async (req, res) => {
     const { postId } = req.params;
 
     // Validate MongoDB ObjectId
@@ -365,13 +330,7 @@ router.delete("/:postId", verifyToken, async (req, res) => {
       success: true,
       message: "Post deleted successfully",
     });
-  } catch (error) {
-    console.error("Delete post error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while deleting post",
-    });
-  }
-});
+  }),
+);
 
 module.exports = router;

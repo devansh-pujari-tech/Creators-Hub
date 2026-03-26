@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import toastService from '../services/toastService';
 import '../styles/CreatePost.css';
 
 function CreatePost({ onPostCreated }) {
@@ -60,6 +61,9 @@ function CreatePost({ onPostCreated }) {
       });
 
       if (response.data.success) {
+        // Show success notification
+        toastService.success('Post created successfully!');
+        
         // Reset form
         setFormData({ title: '', content: '' });
         
@@ -69,14 +73,15 @@ function CreatePost({ onPostCreated }) {
         }
         
         // Navigate back to dashboard
-        navigate('/dashboard');
+        setTimeout(() => navigate('/dashboard'), 1500);
       }
     } catch (err) {
       console.error('Error creating post:', err);
-      setError(
+      const errorMessage =
         err.response?.data?.message ||
-        'Failed to create post. Please try again.'
-      );
+        'Failed to create post. Please try again.';
+      setError(errorMessage);
+      toastService.error(errorMessage);
     } finally {
       setLoading(false);
     }
