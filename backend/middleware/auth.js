@@ -20,7 +20,12 @@ const verifyToken = (req, res, next) => {
     );
 
     // Attach user data to request object
-    req.user = decoded;
+    // Map userId from token to id for consistency
+    req.user = {
+      id: decoded.userId,
+      userId: decoded.userId,
+      email: decoded.email,
+    };
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {

@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import PostList from "./PostList";
 import "../styles/Dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout, loading } = useAuth();
+  const [refreshPosts, setRefreshPosts] = useState(false);
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -17,6 +19,15 @@ function Dashboard() {
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const handleCreatePostClick = () => {
+    navigate("/create-post");
+  };
+
+  const handlePostCreated = () => {
+    // Trigger a post refresh
+    setRefreshPosts((prev) => !prev);
   };
 
   if (loading) {
@@ -31,9 +42,12 @@ function Dashboard() {
     <div className="dashboard-container">
       <nav className="dashboard-navbar">
         <div className="navbar-brand">
-          <h1>Creators Hub</h1>
+          <h1>🎨 Creators Hub</h1>
         </div>
         <div className="navbar-menu">
+          <button onClick={handleCreatePostClick} className="create-post-btn">
+            ✏️ Create Post
+          </button>
           <button onClick={handleLogout} className="logout-btn">
             Logout
           </button>
@@ -42,8 +56,8 @@ function Dashboard() {
 
       <div className="dashboard-content">
         <div className="welcome-card">
-          <h2>Welcome back, {user?.name}!</h2>
-          <p>You have successfully logged in to your account.</p>
+          <h2>Welcome back, {user?.name}! 👋</h2>
+          <p>Ready to share your next creation?</p>
         </div>
 
         <div className="user-info-card">
@@ -64,16 +78,9 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="session-info-card">
-          <h3>Session Information</h3>
-          <p>
-            Your session is now active. You will remain logged in until
-            you log out or your session expires.
-          </p>
-          <div className="session-status">
-            <span className="status-badge">● Active</span>
-            <p>Last login: {new Date().toLocaleString()}</p>
-          </div>
+        {/* Posts Section */}
+        <div className="posts-section">
+          <PostList key={refreshPosts} />
         </div>
       </div>
     </div>

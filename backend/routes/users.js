@@ -3,12 +3,14 @@ const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const User = require("../models/User");
 const { verifyToken } = require("../middleware/auth");
+const { asyncHandler } = require("../utils/asyncHandler");
 
 const router = express.Router();
 
 // Register user
-router.post("/register", async (req, res) => {
-  try {
+router.post(
+  "/register",
+  asyncHandler(async (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
 
     // Validation
@@ -75,27 +77,13 @@ router.post("/register", async (req, res) => {
       message: "User registered successfully",
       user: userResponse,
     });
-  } catch (error) {
-    console.error("Registration error:", error);
-
-    if (error.name === "ValidationError") {
-      const messages = Object.values(error.errors).map((err) => err.message);
-      return res.status(400).json({
-        success: false,
-        message: messages[0],
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Server error during registration",
-    });
-  }
-});
+  }),
+);
 
 // Login user
-router.post("/login", async (req, res) => {
-  try {
+router.post(
+  "/login",
+  asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     // Validation
@@ -156,21 +144,16 @@ router.post("/login", async (req, res) => {
       token,
       user: userResponse,
     });
-  } catch (error) {
-    console.error("Login error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Server error during login",
-    });
-  }
-});
+  }),
+);
 
 // Get user profile (Protected route)
-router.get("/profile", verifyToken, async (req, res) => {
-  try {
+router.get(
+  "/profile",
+  verifyToken,
+  asyncHandler(async (req, res) => {
     // User data is available in req.user from middleware
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({
@@ -191,14 +174,7 @@ router.get("/profile", verifyToken, async (req, res) => {
       message: "User profile retrieved successfully",
       user: userResponse,
     });
-  } catch (error) {
-    console.error("Profile fetch error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching profile",
-    });
-  }
-});
+  }),
+);
 
 module.exports = router;

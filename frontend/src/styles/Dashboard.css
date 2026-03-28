@@ -25,12 +25,30 @@
   align-items: center;
 }
 
+.create-post-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.create-post-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
 .logout-btn {
   background-color: #ff6b6b;
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
@@ -148,6 +166,10 @@
   margin: 10px 0 0 0;
   color: #666;
   font-size: 14px;
+}
+
+.posts-section {
+  margin-top: 40px;
 }
 
 @media (max-width: 768px) {

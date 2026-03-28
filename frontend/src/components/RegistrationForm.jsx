@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import toastService from '../services/toastService';
 import '../styles/RegistrationForm.css';
 
 function RegistrationForm() {
@@ -51,6 +52,13 @@ function RegistrationForm() {
     }
 
     setErrors(newErrors);
+    
+    // Show first error as toast
+    if (Object.keys(newErrors).length > 0) {
+      const firstError = Object.values(newErrors)[0];
+      toastService.warning(firstError);
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
 
@@ -93,9 +101,10 @@ function RegistrationForm() {
 
       if (result.success) {
         // Success
-        setSuccessMessage(
-          `Registration successful! Redirecting to login...`
-        );
+        const successMsg = `Registration successful! Redirecting to login...`;
+        setSuccessMessage(successMsg);
+        toastService.success('Account created successfully! 🎉');
+        
         // Reset form
         setFormData({
           name: '',
@@ -111,13 +120,15 @@ function RegistrationForm() {
         }, 2000);
       } else {
         // Error response from backend
-        setErrorMessage(result.message || 'Registration failed. Please try again.');
+        const errorMsg = result.message || 'Registration failed. Please try again.';
+        setErrorMessage(errorMsg);
+        toastService.error(errorMsg);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setErrorMessage(
-        'An error occurred during registration. Please try again.'
-      );
+      const errorMsg = 'An error occurred during registration. Please try again.';
+      setErrorMessage(errorMsg);
+      toastService.error(errorMsg);
     } finally {
       setLoading(false);
     }

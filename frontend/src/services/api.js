@@ -52,4 +52,32 @@ api.interceptors.response.use(
   },
 );
 
+// Export API helper methods
+export const postAPI = {
+  // Create a new post
+  createPost: (title, content) => api.post("/posts", { title, content }),
+
+  // Get all posts with pagination
+  getAllPosts: (page = 1, limit = 10) =>
+    api.get("/posts", {
+      params: { page, limit },
+    }),
+
+  // Get user's own posts
+  getUserPosts: (userId, page = 1, limit = 10) =>
+    api.get(`/posts/my-posts/${userId}`, {
+      params: { page, limit },
+    }),
+
+  // Get a single post by ID
+  getPostById: (postId) => api.get(`/posts/${postId}`),
+
+  // Update a post
+  updatePost: (postId, title, content) =>
+    api.put(`/posts/${postId}`, { title, content }),
+
+  // Delete a post
+  deletePost: (postId) => api.delete(`/posts/${postId}`),
+};
+
 export default api;
