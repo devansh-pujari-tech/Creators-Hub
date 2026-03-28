@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import toastService from "../services/toastService";
 import "../styles/LoginForm.css";
 
 function LoginForm() {
@@ -13,18 +14,24 @@ function LoginForm() {
 
   const validateForm = () => {
     if (!email || !password) {
-      setError("Email and password are required");
+      const msg = "Email and password are required";
+      setError(msg);
+      toastService.warning(msg);
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address");
+      const msg = "Please enter a valid email address";
+      setError(msg);
+      toastService.warning(msg);
       return false;
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long");
+      const msg = "Password must be at least 8 characters long";
+      setError(msg);
+      toastService.warning(msg);
       return false;
     }
 
@@ -45,12 +52,16 @@ function LoginForm() {
       const result = await login(email, password);
 
       if (result.success) {
+        toastService.success("Login successful! Welcome back!");
         navigate("/dashboard");
       } else {
         setError(result.message);
+        toastService.error(result.message);
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      const errorMessage = "An unexpected error occurred. Please try again.";
+      setError(errorMessage);
+      toastService.error(errorMessage);
     } finally {
       setLoading(false);
     }
