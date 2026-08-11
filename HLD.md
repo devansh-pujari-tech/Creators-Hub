@@ -81,4 +81,4 @@ Creators Hub is a full-stack MERN-style application with a React frontend and an
 
 - Backend and frontend run separately for development.
 - Environment variables configure API URL and MongoDB connection.
-- Production deployment should use secure JWT secrets and HTTPS.
+- Production deployment should use secure JWT secrets and HTTPS
