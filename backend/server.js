@@ -9,6 +9,10 @@ const { errorHandler } = require("./middleware/errorHandler");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET must be configured before starting the server");
+}
+
 // Connect to MongoDB
 connectDB();
 

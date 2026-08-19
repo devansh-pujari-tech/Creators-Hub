@@ -1,0 +1,20 @@
+{
+  "name": "devansh-creators-hub",
+  "version": "1.0.0",
+  "description": "A complete, production-ready social content platform built with React, Express, and MongoDB. Users can register, login, create posts, edit their own content, delete posts, and interact with a fully functional full-stack application with JWT authentication, authorization, complete CRUD operations, pagination, and comprehensive error handling.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devansh-pujari-tech/Creators-Hub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devansh-pujari-tech/Creators-Hub/issues"
+  },
+  "homepage": "https://github.com/devansh-pujari-tech/Creators-Hub#readme"
+}
