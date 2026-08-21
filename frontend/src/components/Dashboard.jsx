@@ -48,6 +48,9 @@ function Dashboard() {
           <button onClick={handleCreatePostClick} className="create-post-btn">
             ✏️ Create Post
           </button>
+          <button onClick={() => navigate("/learning")} className="create-post-btn">
+            Learn & Experiment
+          </button>
           <button onClick={handleLogout} className="logout-btn">
             Logout
           </button>

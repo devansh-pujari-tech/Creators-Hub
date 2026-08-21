@@ -44,6 +44,16 @@ A complete, production-ready social content platform built with React, Express, 
 
 - **MongoDB** - NoSQL database (local or MongoDB Atlas)
 
+## Learning Lab
+
+Authenticated users can open `/learning` to run examples for the requested topics:
+
+- Gemini `gemini-2.5-flash` draft generation with prompt constraints and structured JSON output
+- JavaScript event-loop ordering and hoisting/temporal-dead-zone behavior
+- PostgreSQL primary keys, foreign keys, and an `INNER JOIN`
+
+To start the SQL learning database, run `docker compose up -d`. Set a rotated Google AI Studio key in `backend/.env` as `GEMINI_API_KEY`; never commit that value. The backend uses `POSTGRES_URL` to query the PostgreSQL container while the existing application data remains in MongoDB.
+
 ## Project Architecture
 
 ```

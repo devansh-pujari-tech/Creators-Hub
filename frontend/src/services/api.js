@@ -80,4 +80,10 @@ export const postAPI = {
   deletePost: (postId) => api.delete(`/posts/${postId}`),
 };
 
+export const learningAPI = {
+  generateDraft: (topic, audience, tone) =>
+    api.post("/learning/ai/draft", { topic, audience, tone }),
+  getSqlPostsWithAuthors: () => api.get("/learning/sql/posts-with-authors"),
+};
+
 export default api;
