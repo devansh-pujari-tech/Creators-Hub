@@ -4,6 +4,7 @@ require("dotenv").config();
 const connectDB = require("./config/database");
 const userRoutes = require("./routes/users");
 const postRoutes = require("./routes/posts");
+const learningRoutes = require("./routes/learning");
 const { errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
@@ -31,6 +32,7 @@ app.use(cors(corsOptions));
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/learning", learningRoutes);
 
 // Test API endpoint
 app.get("/api/test", (req, res) => {

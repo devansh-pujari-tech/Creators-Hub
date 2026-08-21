@@ -11,6 +11,7 @@ import CreatePost from './components/CreatePost'
 import EditPost from './components/EditPost'
 import ProtectedRoute from './components/ProtectedRoute'
 import PublicRoute from './components/PublicRoute'
+import LearningPage from './components/LearningPage'
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
             <Route path="/create-post" element={<ProtectedRoute element={<CreatePost />} />} />
             <Route path="/edit-post/:postId" element={<ProtectedRoute element={<EditPost />} />} />
+            <Route path="/learning" element={<ProtectedRoute element={<LearningPage />} />} />
             
             {/* Default route - Redirects to login */}
             <Route path="/" element={<Navigate to="/login" replace />} />
